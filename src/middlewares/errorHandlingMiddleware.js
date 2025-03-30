@@ -1,6 +1,5 @@
 /* eslint-disable no-unused-vars */
 import { StatusCodes } from 'http-status-codes'
-import ApiError from '~/utils/ApiError'
 import { env } from '~/config/environment'
 
 // Middleware xử lý lỗi tập trung trong ứng dụng Back-end NodeJS (ExpressJS)
