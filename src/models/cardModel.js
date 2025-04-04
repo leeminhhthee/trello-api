@@ -17,6 +17,9 @@ const CARD_COLLECTION_SCHEMA = Joi.object({
   _destroy: Joi.boolean().default(false)
 })
 
+// Chi dinh ra nhung fields ma chung ta khong muon cho phep update trong ham update()
+const INVALID_UPDATE_FIELDS = ['_id', 'boardId', 'createdAt']
+
 const validateBeforeCreate = async (data) => {
   return await CARD_COLLECTION_SCHEMA.validateAsync(data, { abortEarly: false })
 }
@@ -34,10 +37,40 @@ const createNew = async (data) => {
   } catch (error) { throw new Error(error) }
 }
 
-const findOneById = async (id) => {
+const findOneById = async (cardId) => {
   try {
     const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOne({
-      _id: new ObjectId(String(id))
+      _id: new ObjectId(String(cardId))
+    })
+    return result
+  } catch (error) { throw new Error(error)}
+}
+
+const update = async (cardId, updateData) => {
+  try {
+    // Loc nhung field ma chung ta khong cho phep update
+    Object.keys(updateData).forEach(fieldName => {
+      if (INVALID_UPDATE_FIELDS.includes(fieldName)) {
+        delete updateData[fieldName]
+      }
+    })
+
+    if (updateData.columnId) updateData.columnId = new ObjectId(String(updateData.columnId))
+
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(String(cardId)) },
+      { $set: updateData },
+      { returnDocument: 'after' } // tra ve ket qua moi sau khi update
+    )
+
+    return result
+  } catch (error) { throw new Error(error)}
+}
+
+const deleteManyByColumnId = async (columnId) => {
+  try {
+    const result = await GET_DB().collection(CARD_COLLECTION_NAME).deleteMany({
+      columnId: new ObjectId(String(columnId))
     })
     return result
   } catch (error) { throw new Error(error)}
@@ -47,5 +80,7 @@ export const cardModel = {
   CARD_COLLECTION_NAME,
   CARD_COLLECTION_SCHEMA,
   createNew,
-  findOneById
+  findOneById,
+  update,
+  deleteManyByColumnId
 }

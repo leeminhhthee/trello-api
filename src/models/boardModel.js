@@ -37,21 +37,21 @@ const createNew = async (data) => {
   } catch (error) { throw new Error(error) }
 }
 
-const findOneById = async (id) => {
+const findOneById = async (boardId) => {
   try {
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOne({
-      _id: new ObjectId(String(id))
+      _id: new ObjectId(String(boardId))
     })
     return result
   } catch (error) { throw new Error(error)}
 }
 
 // Query tổng hợp (aggregate) để lấy toàn bộ Columns và Cards thuộc về Board
-const getDetails = async (id) => {
+const getDetails = async (boardId) => {
   try {
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).aggregate([
       { $match: {
-        _id: new ObjectId(String(id)),
+        _id: new ObjectId(String(boardId)),
         _destroy: false
       } },
       { $lookup: {
@@ -72,7 +72,8 @@ const getDetails = async (id) => {
   } catch (error) { throw new Error(error)}
 }
 
-// Push một giá trị columnId vào cuối mảng columOrderIds
+// Day mot phan tu columnId vào cuối mảng columOrderIds
+// Dung $push trong mongodb o TH nay de day 1 phan tu vao cuoi mang
 const pushColumnOrderIds = async (column) => {
   try {
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
@@ -85,6 +86,21 @@ const pushColumnOrderIds = async (column) => {
   } catch (error) { throw new Error(error)}
 }
 
+// Lay mot phan tu columnId ra khoi mang columnOrderIds
+// Dung $pull trong mongodb o TH nay de lay mot phan tu ra khoi mang roi xoa no di
+const pullColumnOrderIds = async (column) => {
+  try {
+    const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
+      { _id: new ObjectId(String(column.boardId)) },
+      { $pull: { columnOrderIds: new ObjectId(String(column._id)) } },
+      { returnDocument: 'after' }
+    )
+
+    return result
+  } catch (error) { throw new Error(error)}
+}
+
+
 const update = async (boardId, updateData) => {
   try {
     // Loc nhung field ma chung ta khong cho phep update
@@ -94,16 +110,13 @@ const update = async (boardId, updateData) => {
       }
     })
 
-    const updatedObjectIds = updateData.columnOrderIds.map(id => new ObjectId(String(id)))
+    if (updateData.columnOrderIds) {
+      updateData.columnOrderIds = updateData.columnOrderIds.map(_id => new ObjectId(String(_id)))
+    }
 
     const result = await GET_DB().collection(BOARD_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(String(boardId)) },
-      {
-        $set:  {
-          columnOrderIds: updatedObjectIds,
-          updatedAt: updateData.updatedAt
-        }
-      },
+      { $set: updateData },
       { returnDocument: 'after' } // tra ve ket qua moi sau khi update
     )
 
@@ -118,5 +131,6 @@ export const boardModel = {
   findOneById,
   getDetails,
   pushColumnOrderIds,
+  pullColumnOrderIds,
   update
 }

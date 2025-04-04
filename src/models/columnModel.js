@@ -38,10 +38,10 @@ const createNew = async (data) => {
   } catch (error) { throw new Error(error) }
 }
 
-const findOneById = async (id) => {
+const findOneById = async (columnId) => {
   try {
     const result = await GET_DB().collection(COLUMN_COLLECTION_NAME).findOne({
-      _id: new ObjectId(String(id))
+      _id: new ObjectId(String(columnId))
     })
     return result
   } catch (error) { throw new Error(error)}
@@ -69,16 +69,13 @@ const update = async (columnId, updateData) => {
       }
     })
 
-    const updatedObjectIds = updateData.cardOrderIds.map(id => new ObjectId(String(id)))
+    if (updateData.cardOrderIds) {
+      updateData.cardOrderIds = updateData.cardOrderIds.map(_id => new ObjectId(String(_id)))
+    }
 
     const result = await GET_DB().collection(COLUMN_COLLECTION_NAME).findOneAndUpdate(
       { _id: new ObjectId(String(columnId)) },
-      {
-        $set:  {
-          cardOrderIds: updatedObjectIds,
-          updatedAt: updateData.updatedAt
-        }
-      },
+      { $set: updateData },
       { returnDocument: 'after' } // tra ve ket qua moi sau khi update
     )
 
@@ -86,6 +83,14 @@ const update = async (columnId, updateData) => {
   } catch (error) { throw new Error(error)}
 }
 
+const deleteOneById = async (columnId) => {
+  try {
+    const result = await GET_DB().collection(COLUMN_COLLECTION_NAME).deleteOne({
+      _id: new ObjectId(String(columnId))
+    })
+    return result
+  } catch (error) { throw new Error(error)}
+}
 
 export const columnModel = {
   COLUMN_COLLECTION_NAME,
@@ -93,5 +98,6 @@ export const columnModel = {
   createNew,
   findOneById,
   pushCardOrderIds,
-  update
+  update,
+  deleteOneById
 }
