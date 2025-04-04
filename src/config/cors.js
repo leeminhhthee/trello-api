@@ -6,11 +6,12 @@ import ApiError from '~/utils/ApiError'
 // Cấu hình CORS Option trong dự án thực tế
 export const corsOptions = {
   origin: function (origin, callback) {
-    // Cho phép việc gọi API bằng POSTMAN trên môi trường dev,
-    // Thông thường khi sử dụng postman thì cái origin sẽ có giá trị là undefined
-    if (!origin && env.BUILD_MODE === 'dev') {
+    // Neu moi truong la local dev thi cho qua luon
+    if (env.BUILD_MODE === 'dev') {
       return callback(null, true)
     }
+
+    // Nguoc lai: env.BUILD_MODE === 'production'
 
     // Kiểm tra dem origin có phải là domain được chấp nhận hay không
     if (WHITELIST_DOMAINS.includes(origin)) {
