@@ -44,6 +44,7 @@ LOCAL_DEV_APP_PORT=8017
 AUTHOR='TheDev'
 ```
 🗂️ This project uses MongoDB Atlas with:
+
 "Database name: `trello-mern`"
 
 "Collection: `boards`"
