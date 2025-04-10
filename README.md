@@ -6,7 +6,7 @@ This is the backend API for the Trello Web Clone project, built with Node.js, Ex
 
 - User, board, list, and card management
 - MongoDB with MongoDB Cloud Atlas
-- Organized folder structure (routes, controllers, middleware, service and model)
+- Organized folder structure (routes, controllers, middleware, services and models)
 - CORS and dotenv configuration
 
 ## 🚀 Technologies
