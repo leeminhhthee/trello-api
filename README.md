@@ -45,6 +45,7 @@ AUTHOR='TheDev'
 ```
 🗂️ This project uses MongoDB Atlas with:
 "Database name: `trello-mern`"
+
 "Collection: `boards`"
 
 ### 4. Start the server
